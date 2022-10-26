@@ -1,0 +1,24 @@
+{
+  "include": ["src"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "~/*": ["./*"]
+    },
+    "lib": ["es2021", "dom"],
+    "outDir": "build",
+    "module": "commonjs",
+    "target": "es2017",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "resolveJsonModule": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "isolatedModules": true
+  }
+}
