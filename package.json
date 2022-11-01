@@ -10,12 +10,13 @@
     "lint:js": "npx eslint \"src/**/*.ts\"",
     "lint:type": "npx tsc --noEmit",
     "lint": "npm run lint:editorconfig && npm run lint:fs && npm run lint:type && npm run lint:js",
-    "start:dev": "nodemon --exec ts-node --files -r tsconfig-paths/register ./src/main.ts",
-    "start": "node ./build/main.js",
+    "start:dev": "ts-node --files -r tsconfig-paths/register ./src/index.ts",
+    "start": "node ./build/index.js",
     "build": "tsc && tsc-alias -p tsconfig.json"
   },
   "dependencies": {
-
+    "cassandra-driver": "4.6.4",
+    "dotenv": "16.0.3"
   },
   "devDependencies": {
     "@ls-lint/ls-lint": "1.11.0",
@@ -25,11 +26,10 @@
     "eslint": "8.25.0",
     "eslint-plugin-import": "2.26.0",
     "lint-staged": "12.4.1",
-    "nodemon": "2.0.15",
     "simple-git-hooks": "2.7.0",
     "ts-node": "10.9.1",
     "tsc-alias": "1.7.0",
-    "typescript": "4.8.4"
+    "typescript": "4.6.4"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"

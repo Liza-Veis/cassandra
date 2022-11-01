@@ -6,7 +6,7 @@
     "paths": {
       "~/*": ["./*"]
     },
-    "lib": ["es2021", "dom"],
+    "lib": ["es2021"],
     "outDir": "build",
     "module": "commonjs",
     "target": "es2017",
