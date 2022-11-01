@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "cassandra-driver": "4.6.4",
-    "dotenv": "16.0.3"
+    "dotenv": "16.0.3",
+    "zod": "3.19.1"
   },
   "devDependencies": {
     "@ls-lint/ls-lint": "1.11.0",
