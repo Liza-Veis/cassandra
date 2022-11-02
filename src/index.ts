@@ -2,20 +2,24 @@ import { ENV } from './common/enums/enums';
 import { initRepositories } from './data/repositories/repositories';
 import { connectToDatabase } from './database';
 import { initServices } from './services/services';
+import { Logger } from './utils/utils';
 
 const initApp = async (): Promise<void> => {
-  try {
-    const database = await connectToDatabase(ENV.DATABASE_CONFIG_PATH);
+  const logger = new Logger();
 
-    const repositories = initRepositories(database);
-    const { systemSchema } = initServices(repositories);
+  const database = await connectToDatabase(ENV.DATABASE_CONFIG_PATH);
 
-    await systemSchema.exportTableJSONSchemas(ENV.SCHEMA_DIRECTORY_PATH);
+  const repositories = initRepositories({
+    database,
+  });
+  const { systemSchema } = initServices({
+    repositories,
+    logger,
+  });
 
-    await database.shutdown();
-  } catch (e) {
-    console.error(e);
-  }
+  await systemSchema.exportTableJSONSchemas(ENV.SCHEMA_DIRECTORY_PATH);
+
+  await database.shutdown();
 };
 
 initApp();

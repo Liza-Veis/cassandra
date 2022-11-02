@@ -27,12 +27,6 @@ class CQLTypeParser {
     return regexp.test(type);
   }
 
-  public static isFrozen(type: string): boolean {
-    const regexp = CQLTypeParser.getNestedTypeRegExp(CQLDataType.FROZEN);
-
-    return regexp.test(type);
-  }
-
   public static getNestedType(
     type: string,
     outerType: Exclude<CQLDataType, CQLDataType.MAP | CQLDataType.TUPLE>,
