@@ -2,9 +2,9 @@ import { deepEqual, instance, mock, when } from 'ts-mockito';
 
 import { CQLDataType, JSONSchemaDataType } from '~/common/enums/enums';
 import { DatabaseColumn, DatabaseTable } from '~/data/models/models';
-import { SystemSchema as SystemSchemaRepository } from '~/data/repositories/system-schema/system-schema.repository';
+import { SystemSchema as SystemSchemaRepository } from '~/data/repositories/repositories';
 import { writeFile } from '~/helpers/helpers';
-import { JSONSchema as JSONSchemaService } from '~/services/json-schema/json-schema.service';
+import { JSONSchema as JSONSchemaService } from '~/services/services';
 import { Logger } from '~/utils/utils';
 
 import { SystemSchema as SystemSchemaService } from './system-schema.service';
@@ -31,9 +31,9 @@ describe('SystemSchemaService', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    const mockLogger: Logger = mock(Logger);
-    mockSystemSchemaRepository = mock(SystemSchemaRepository);
-    mockJSONSchemaService = mock(JSONSchemaService);
+    const mockLogger = mock<Logger>();
+    mockSystemSchemaRepository = mock<SystemSchemaRepository>();
+    mockJSONSchemaService = mock<JSONSchemaService>();
 
     mockSystemSchemaService = new SystemSchemaService({
       systemSchemaRepository: instance(mockSystemSchemaRepository),
@@ -64,7 +64,7 @@ describe('SystemSchemaService', () => {
         },
       ].map(DatabaseColumn.initialize);
       const JSON_SCHEMA = {
-        $schema: JSONSchemaService.JSON_SCHEMA_DIALECT,
+        $schema: 'http://json-schema.org/draft-04/schema#',
         title: TableName.USER,
         type: JSONSchemaDataType.OBJECT,
         properties: {

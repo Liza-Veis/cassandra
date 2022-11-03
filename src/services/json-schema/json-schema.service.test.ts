@@ -34,7 +34,7 @@ describe('JSONSchemaService', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    const mockLogger: Logger = mock(Logger);
+    const mockLogger = mock<Logger>();
 
     jsonSchemaService = new JSONSchemaService({
       logger: instance(mockLogger),
