@@ -13,6 +13,7 @@ Application to import table schemas from Cassandra database and export them in J
 
 1. **`npm install`** at the root
 2. Fill ENV following `.env.example`
-3. **`npx simple-git-hooks`** at the root
-4. **`npm run start:dev`**
-5. Enjoy <3
+3. Fill `config.js`
+4. **`npx simple-git-hooks`** at the root
+5. **`npm run start:dev`**
+6. Enjoy <3
