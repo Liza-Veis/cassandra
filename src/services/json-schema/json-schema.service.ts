@@ -17,8 +17,6 @@ class JSONSchema {
 
   public static JSON_SCHEMA_DIALECT = 'http://json-schema.org/draft-04/schema#';
 
-  private static JSON_SCHEMA_SPACE = '  ';
-
   private static CQLBaseTypeMap: Record<string, JSONSchemaDataType> = {
     [CQLDataType.ASCII]: JSONSchemaDataType.STRING,
     [CQLDataType.BIGINT]: JSONSchemaDataType.NUMBER,
@@ -47,10 +45,10 @@ class JSONSchema {
   }
 
   public getTableJSONSchema(
-    name: string,
+    tableName: string,
     columns: DatabaseColumn[],
     udts: UserDefinedType[],
-  ): string {
+  ): Record<string, unknown> {
     const properties = columns.reduce((acc, { name, type }) => {
       return {
         ...acc,
@@ -58,23 +56,25 @@ class JSONSchema {
       };
     }, {});
 
-    const schema = {
+    return {
       $schema: JSONSchema.JSON_SCHEMA_DIALECT,
-      title: name,
+      title: tableName,
       type: JSONSchemaDataType.OBJECT,
       properties,
     };
-
-    return JSON.stringify(schema, null, JSONSchema.JSON_SCHEMA_SPACE);
   }
 
   private getCQLTypeJSONSchema(
-    cqlType: string,
+    rawCQLDataType: string,
     udts: UserDefinedType[],
   ): Record<string, unknown> {
-    const pureType = CQLTypeParser.getNestedType(cqlType, CQLDataType.FROZEN);
+    let cqlDataType = rawCQLDataType;
 
-    if (pureType === CQLDataType.BLOB) {
+    if (CQLTypeParser.checkIsType(cqlDataType, CQLDataType.FROZEN)) {
+      [cqlDataType] = CQLTypeParser.getInnerTypes(cqlDataType);
+    }
+
+    if (cqlDataType === CQLDataType.BLOB) {
       this.logger.warn(
         getMessageWithParams(
           NotificationMessage.CQL_$TYPE_CANNOT_BE_REPRESENTED,
@@ -85,21 +85,21 @@ class JSONSchema {
       );
     }
 
-    if (pureType in JSONSchema.CQLBaseTypeMap) {
-      const type = JSONSchema.CQLBaseTypeMap[pureType];
+    if (cqlDataType in JSONSchema.CQLBaseTypeMap) {
+      const type = JSONSchema.CQLBaseTypeMap[cqlDataType];
 
       return { type };
     }
 
-    if (CQLTypeParser.isList(pureType)) {
-      return this.getListJSONSchema(pureType, udts);
+    if (CQLTypeParser.checkIsType(cqlDataType, CQLDataType.LIST)) {
+      return this.getListJSONSchema(cqlDataType, udts);
     }
 
-    if (CQLTypeParser.isSet(pureType)) {
-      return this.getSetJSONSchema(pureType, udts);
+    if (CQLTypeParser.checkIsType(cqlDataType, CQLDataType.SET)) {
+      return this.getSetJSONSchema(cqlDataType, udts);
     }
 
-    if (CQLTypeParser.isMap(pureType)) {
+    if (CQLTypeParser.checkIsType(cqlDataType, CQLDataType.MAP)) {
       this.logger.warn(
         getMessageWithParams(
           NotificationMessage.CQL_$TYPE_CANNOT_BE_REPRESENTED,
@@ -109,21 +109,21 @@ class JSONSchema {
         ),
       );
 
-      return this.getMapJSONSchema(pureType, udts);
+      return this.getMapJSONSchema(cqlDataType, udts);
     }
 
-    if (CQLTypeParser.isTuple(pureType)) {
-      return this.getTupleJSONSchema(pureType, udts);
+    if (CQLTypeParser.checkIsType(cqlDataType, CQLDataType.TUPLE)) {
+      return this.getTupleJSONSchema(cqlDataType, udts);
     }
 
-    return this.getUDTJSONSchema(pureType, udts);
+    return this.getUDTJSONSchema(cqlDataType, udts);
   }
 
   private getListJSONSchema(
     type: string,
     udts: UserDefinedType[],
   ): Record<string, unknown> {
-    const itemType = CQLTypeParser.getNestedType(type, CQLDataType.LIST);
+    const [itemType] = CQLTypeParser.getInnerTypes(type);
 
     return {
       type: JSONSchemaDataType.ARRAY,
@@ -135,7 +135,7 @@ class JSONSchema {
     type: string,
     udts: UserDefinedType[],
   ): Record<string, unknown> {
-    const itemType = CQLTypeParser.getNestedType(type, CQLDataType.SET);
+    const [itemType] = CQLTypeParser.getInnerTypes(type);
 
     return {
       type: JSONSchemaDataType.ARRAY,
@@ -148,10 +148,7 @@ class JSONSchema {
     type: string,
     udts: UserDefinedType[],
   ): Record<string, unknown> {
-    const [_keyType, valueType] = CQLTypeParser.getNestedMultipleTypes(
-      type,
-      CQLDataType.MAP,
-    );
+    const [_keyType, valueType] = CQLTypeParser.getInnerTypes(type);
 
     return {
       type: JSONSchemaDataType.OBJECT,
@@ -163,10 +160,7 @@ class JSONSchema {
     type: string,
     udts: UserDefinedType[],
   ): Record<string, unknown> {
-    const itemTypes = CQLTypeParser.getNestedMultipleTypes(
-      type,
-      CQLDataType.TUPLE,
-    );
+    const itemTypes = CQLTypeParser.getInnerTypes(type);
 
     return {
       type: JSONSchemaDataType.ARRAY,

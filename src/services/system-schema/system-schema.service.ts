@@ -23,6 +23,8 @@ class SystemSchema {
 
   private logger: Logger;
 
+  private static JSON_SCHEMA_SPACE = '  ';
+
   public constructor({
     systemSchemaRepository,
     jsonSchemaService,
@@ -70,13 +72,16 @@ class SystemSchema {
     const schemaPath = resolvePath(process.cwd(), path, `${name}_table.json`);
     const schema = await this.getTableJSONSchema(name, udts);
 
-    await writeFile(schemaPath, schema);
+    await writeFile(
+      schemaPath,
+      JSON.stringify(schema, null, SystemSchema.JSON_SCHEMA_SPACE),
+    );
   }
 
   private async getTableJSONSchema(
     name: string,
     udts: UserDefinedType[],
-  ): Promise<string> {
+  ): Promise<Record<string, unknown>> {
     const columns = await this.systemSchemaRepository.getTableColumns(name);
 
     return this.jsonSchemaService.getTableJSONSchema(name, columns, udts);

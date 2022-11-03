@@ -6,9 +6,13 @@ node_modules
 
 # production
 build
+result
 
 # misc
 .DS_Store
 
 # environment
 .env
+
+# tests
+cover
