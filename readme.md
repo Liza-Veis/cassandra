@@ -1,4 +1,4 @@
-# Hackolade Test Task
+# Cassandra
 
 Application to import table schemas from Cassandra database and export them in JSON Schema format.
 
